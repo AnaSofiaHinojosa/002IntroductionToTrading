@@ -1,22 +1,50 @@
+import ta
 import pandas as pd
 
-def sma(series: pd.Series, window: int) -> pd.Series:
-    return series.rolling(window, min_periods=1).mean()
+def add_indicators(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add technical indicators and buy/sell signals to the DataFrame.
+    """
 
-def rsi(series: pd.Series, window: int = 14) -> pd.Series:
-    delta = series.diff()
-    up = delta.clip(lower=0)
-    down = -1 * delta.clip(upper=0)
-    ma_up = up.rolling(window, min_periods=1).mean()
-    ma_down = down.rolling(window, min_periods=1).mean()
-    rs = ma_up / (ma_down + 1e-9)
-    return 100 - (100 / (1 + rs))
+    rsi_indicator = ta.momentum.RSIIndicator(close=data.Close, window=10)  
+    sma_indicator = ta.trend.SMAIndicator(close=data.Close, window=5)      
+    bb_indicator = ta.volatility.BollingerBands(
+        close=data['Close'], window=15, window_dev=1.5)             
+
+    data['RSI'] = rsi_indicator.rsi()
+    data['SMA'] = sma_indicator.sma_indicator()
+    data['BB_Upper'] = bb_indicator.bollinger_hband()
+    data['BB_Lower'] = bb_indicator.bollinger_lband()
 
 
-def macd(series: pd.Series, short=12, long=26, signal=9):
-    ema_short = series.ewm(span=short, adjust=False).mean()
-    ema_long = series.ewm(span=long, adjust=False).mean()
-    macd_line = ema_short - ema_long
-    macd_signal = macd_line.ewm(span=signal, adjust=False).mean()
-    macd_hist = macd_line - macd_signal
-    return macd_line, macd_signal, macd_hist
+    data['buy_signal_rsi'] = data['RSI'] < 30      
+    data['sell_signal_rsi'] = data['RSI'] > 70
+    data['buy_signal_sma'] = data['Close'] > data['SMA']
+    data['sell_signal_sma'] = data['Close'] < data['SMA']
+    data['buy_signal_bb'] = data['Close'] < data['BB_Lower']
+    data['sell_signal_bb'] = data['Close'] > data['BB_Upper']
+
+    data = data.dropna()
+
+    return data
+
+def get_signals(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Generate buy/sell signals based on technical indicators
+    in the case that two or more conditions are met.
+    """
+    data['buy_signal'] = (
+        data['buy_signal_rsi'].astype(int) +
+        data['buy_signal_sma'].astype(int) +
+        data['buy_signal_bb'].astype(int)
+    ) >= 2
+
+    data['sell_signal'] = (
+        data['sell_signal_rsi'].astype(int) +
+        data['sell_signal_sma'].astype(int) +
+        data['sell_signal_bb'].astype(int)
+    ) >= 2
+
+    return data
+
+
