@@ -43,7 +43,7 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     )
 
     # --- Cross-validation ---
-    n_splits = 7
+    n_splits = 5
     calmars = []
     len_data = len(data)
 
@@ -61,7 +61,7 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
         calmar = calmar_ratio(returns, periods_per_year=8760) 
         calmars.append(calmar)
 
-    mean_calmar = np.mean(calmars)
+    mean_calmar = np.median(calmars)
 
     # If mean_calmar is NaN, assign very low value
     if np.isnan(mean_calmar):
