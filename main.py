@@ -1,12 +1,118 @@
+import optuna
+import pandas as pd
+from pathlib import Path
+
 from data import load_data
+from split import data_split
 from indicators import add_indicators, get_signals
 from backtesting import backtest
-from utils import plot_port_value
+from metrics import performance_summary
+from optimize import optimize
+from utils import plot_port_value_train, plot_port_value_test_val
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
+    # --- Load data ---
     df = load_data("Binance_BTCUSDT_1h.csv")
-    data = df.copy()
-    data = add_indicators(data)
-    data = get_signals(data)
-    port_hist = backtest(data, 0.1, 0.1, 200)
-    plot_port_value(port_hist, data.Date)
+    train_data, test_data, val_data = data_split(df)
+
+    # --- Run Optuna optimization (on Train only) ---
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    study = optuna.create_study(direction="maximize")
+    study.optimize(
+        lambda trial: optimize(trial, train_data),
+        n_trials=50,
+        show_progress_bar=True
+    )
+
+    print("\nBest parameters found:")
+    params = study.best_params
+    for k, v in params.items():
+        print(f"  {k}: {v}")
+
+    # --- Run Train set ---
+    print("\n--- Running on Train set ---")
+    train_data_proc = add_indicators(
+        train_data.copy(),
+        rsi_window=params["rsi_window"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
+    )
+    train_data_proc = get_signals(
+        train_data_proc,
+        rsi_buy=params["rsi_buy"],
+        rsi_sell=params["rsi_sell"]
+    )
+    port_hist_train, final_cash_train = backtest(
+        train_data_proc,
+        SL=params["SL"],
+        TP=params["TP"],
+        n_shares=params["n_shares"]
+    )
+    metrics_train = performance_summary(pd.Series(port_hist_train, index=train_data_proc.index), periods_per_year=8760)
+    plot_port_value_train(port_hist_train, train_data_proc.Date)
+
+    print("\nPerformance Summary (Train):")
+    for key, value in metrics_train.items():
+        print(f"{key}: {value:.4f}")
+    print(f"Final Cash: {final_cash_train:.2f}")
+
+    # --- Run Test set ---
+    print("\n--- Running on Test set ---")
+    test_data_proc = add_indicators(
+        test_data.copy(),
+        rsi_window=params["rsi_window"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
+    )
+    test_data_proc = get_signals(
+        test_data_proc,
+        rsi_buy=params["rsi_buy"],
+        rsi_sell=params["rsi_sell"]
+    )
+    port_hist_test, final_cash_test = backtest(
+        test_data_proc,
+        SL=params["SL"],
+        TP=params["TP"],
+        n_shares=params["n_shares"]
+    )
+    metrics_test = performance_summary(pd.Series(port_hist_test, index=test_data_proc.index), periods_per_year=8760)
+    print("\nPerformance Summary (Test):")
+    for key, value in metrics_test.items():
+        print(f"{key}: {value:.4f}")
+    print(f"Final Cash: {final_cash_test:.2f}")
+
+    # --- Run Validation set ---
+    print("\n--- Running on Validation set ---")
+    val_data_proc = add_indicators(
+        val_data.copy(),
+        rsi_window=params["rsi_window"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
+    )
+    val_data_proc = get_signals(
+        val_data_proc,
+        rsi_buy=params["rsi_buy"],
+        rsi_sell=params["rsi_sell"]
+    )
+    port_hist_val, final_cash_val = backtest(
+        val_data_proc,
+        SL=params["SL"],
+        TP=params["TP"],
+        n_shares=params["n_shares"]
+    )
+    metrics_val = performance_summary(pd.Series(port_hist_val, index=val_data_proc.index), periods_per_year=8760)
+    print("\nPerformance Summary (Validation):")
+    for key, value in metrics_val.items():
+        print(f"{key}: {value:.4f}")
+    print(f"Final Cash: {final_cash_val:.2f}")
+
+    # --- Plot Test + Validation as one continuous series ---
+    plot_port_value_test_val(
+        test_hist=port_hist_test,
+        test_dates=test_data_proc.Date,
+        val_hist=port_hist_val,
+        val_dates=val_data_proc.Date
+    )
