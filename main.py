@@ -8,7 +8,7 @@ from indicators import add_indicators, get_signals
 from backtesting import backtest
 from metrics import performance_summary
 from optimize import optimize
-from utils import plot_port_value_train, plot_port_value_test_val
+from plots import plot_port_value_train, plot_port_value_test_val
 
 if __name__ == "__main__":
     # --- Load data ---
@@ -41,8 +41,12 @@ if __name__ == "__main__":
     train_data_proc = get_signals(
         train_data_proc,
         rsi_buy=params["rsi_buy"],
-        rsi_sell=params["rsi_sell"]
+        rsi_sell=params["rsi_sell"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
     )
+
     port_hist_train, final_cash_train = backtest(
         train_data_proc,
         SL=params["SL"],
@@ -69,8 +73,12 @@ if __name__ == "__main__":
     test_data_proc = get_signals(
         test_data_proc,
         rsi_buy=params["rsi_buy"],
-        rsi_sell=params["rsi_sell"]
+        rsi_sell=params["rsi_sell"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
     )
+
     port_hist_test, final_cash_test = backtest(
         test_data_proc,
         SL=params["SL"],
@@ -95,7 +103,10 @@ if __name__ == "__main__":
     val_data_proc = get_signals(
         val_data_proc,
         rsi_buy=params["rsi_buy"],
-        rsi_sell=params["rsi_sell"]
+        rsi_sell=params["rsi_sell"],
+        sma_window=params["sma_window"],
+        bb_window=params["bb_window"],
+        bb_dev=params["bb_dev"]
     )
     port_hist_val, final_cash_val = backtest(
         val_data_proc,

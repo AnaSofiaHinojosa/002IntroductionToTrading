@@ -30,20 +30,43 @@ def add_indicators(
 def get_signals(
     data: pd.DataFrame,
     rsi_buy: int = 30,
-    rsi_sell: int = 70
+    rsi_sell: int = 70,
+    sma_window: int = 20,
+    bb_window: int = 20,
+    bb_dev: float = 2.0
 ) -> pd.DataFrame:
     """
-    Generate buy/sell signals using indicator thresholds.
+    Generate buy/sell signals using RSI, SMA, and Bollinger Band thresholds.
+
+    Args:
+        data (pd.DataFrame): Market data with 'Close' and 'RSI' columns.
+        rsi_buy (int): RSI threshold below which to trigger a buy signal.
+        rsi_sell (int): RSI threshold above which to trigger a sell signal.
+        sma_window (int): Window size for Simple Moving Average.
+        bb_window (int): Window size for Bollinger Bands.
+        bb_dev (float): Number of standard deviations for Bollinger Bands.
+
+    Returns:
+        pd.DataFrame: DataFrame with buy/sell signals added.
     """
+    # RSI signals
     data['buy_signal_rsi'] = data['RSI'] < rsi_buy
     data['sell_signal_rsi'] = data['RSI'] > rsi_sell
 
+    # SMA signals
+    data['SMA'] = data['Close'].rolling(window=sma_window).mean()
     data['buy_signal_sma'] = data['Close'] > data['SMA']
     data['sell_signal_sma'] = data['Close'] < data['SMA']
 
+    # Bollinger Bands signals
+    bb_ma = data['Close'].rolling(window=bb_window).mean()
+    bb_std = data['Close'].rolling(window=bb_window).std()
+    data['BB_Upper'] = bb_ma + bb_dev * bb_std
+    data['BB_Lower'] = bb_ma - bb_dev * bb_std
     data['buy_signal_bb'] = data['Close'] < data['BB_Lower']
     data['sell_signal_bb'] = data['Close'] > data['BB_Upper']
 
+    # Final signals: require at least 2 of 3 indicators to agree
     data['buy_signal'] = (
         data['buy_signal_rsi'].astype(int) +
         data['buy_signal_sma'].astype(int) +
@@ -57,6 +80,7 @@ def get_signals(
     ) >= 2
 
     return data
+
 
 
 

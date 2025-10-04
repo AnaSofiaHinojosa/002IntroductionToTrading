@@ -92,4 +92,4 @@ def backtest(data: pd.DataFrame, SL: float, TP: float, n_shares: int) -> tuple[l
 
         port_hist.append(port_value)
 
-    return port_hist, cash
+    return port_hist, port_hist[-1] if port_hist else cash

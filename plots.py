@@ -20,15 +20,16 @@ def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
                              val_hist: list[float], val_dates: pd.Series) -> None:
     """
     Plot portfolio value over Test + Validation as one continuous series.
-    Validation starts where Test ends.
+    Validation starts from the last value of Test.
     """
     plt.figure(figsize=(12, 5))
 
-    # Plot Test first
-    plt.plot(test_dates, test_hist, color='maroon', label='Test', alpha=0.7)
+    # Plot Test
+    plt.plot(test_dates, test_hist, color='maroon', label='Test')
 
-    # Adjust Validation to start from last Test value
-    val_hist_adjusted = [test_hist[-1]] + list(val_hist[1:])
+    # Shift Validation to start from last Test value
+    shift = test_hist[-1] - val_hist[0]
+    val_hist_adjusted = [v + shift for v in val_hist]
     plt.plot(val_dates, val_hist_adjusted, color='palevioletred', label='Validation')
 
     plt.title("Portfolio Value: Test + Validation")

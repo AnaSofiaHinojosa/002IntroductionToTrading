@@ -3,7 +3,7 @@ import pandas as pd
 
 def data_split(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Split time series data into training, validation, and testing sets (60% train, 20% test, 20% val).
+    Split time series data into training, and testing and validation sets (60% train, 20% test, 20% val).
     """
     n = len(data)
     train_end = int(0.60 * n)
