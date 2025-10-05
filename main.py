@@ -9,6 +9,7 @@ from backtesting import backtest
 from metrics import performance_summary
 from optimize import optimize
 from plots import plot_port_value_train, plot_port_value_test_val
+from tables import returns_table, show_table
 
 if __name__ == "__main__":
     # --- Load data ---
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=50,
+        n_trials=10,
         show_progress_bar=True
     )
 
@@ -127,3 +128,35 @@ if __name__ == "__main__":
         val_hist=port_hist_val,
         val_dates=val_data_proc.Date
     )
+    port_series = pd.Series(port_hist_train + port_hist_test + port_hist_val)
+
+
+    # --- Train ---
+    port_series_train = pd.Series(
+        port_hist_train, 
+        index=pd.to_datetime(train_data_proc['Date'])  # ensure DatetimeIndex
+    )
+    returns_table_train = returns_table(port_series_train)
+
+    # --- Test ---
+    port_series_test = pd.Series(
+        port_hist_test, 
+        index=pd.to_datetime(test_data_proc['Date'])
+    )
+    returns_table_test = returns_table(port_series_test)
+
+    # --- Validation ---
+    port_series_val = pd.Series(
+        port_hist_val, 
+        index=pd.to_datetime(val_data_proc['Date'])
+    )
+    returns_table_val = returns_table(port_series_val)
+
+    print(port_series_val.index.min(), port_series_val.index.max())
+    # Show tables
+
+    show_table(returns_table_train, "Train Set Returns Table")
+    show_table(returns_table_test, "Test Set Returns Table")
+    show_table(returns_table_val, "Validation Set Returns Table")
+ 
+    

@@ -7,7 +7,7 @@ def plot_port_value_train(port_hist: list[float], dates: pd.Series) -> None:
     """
 
     plt.figure(figsize=(10, 5))
-    plt.plot(dates, port_hist, color='palevioletred')
+    plt.plot(dates, port_hist, color='maroon')
     plt.title("Portfolio Value Over Time")
     plt.xlabel("Date")
     plt.ylabel("Portfolio Value")
@@ -25,7 +25,7 @@ def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
     plt.figure(figsize=(12, 5))
 
     # Plot Test
-    plt.plot(test_dates, test_hist, color='maroon', label='Test')
+    plt.plot(test_dates, test_hist, color='maroon', label='Test', alpha=0.5)
 
     # Shift Validation to start from last Test value
     shift = test_hist[-1] - val_hist[0]
