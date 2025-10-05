@@ -10,8 +10,19 @@ from metrics import calmar_ratio
 def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     """
     Objective function for Optuna hyperparameter optimization.
-    """
 
+    This function tunes technical indicator parameters and trading strategy thresholds
+    using cross-validation on the training data. The optimization target is the median
+    Calmar Ratio across splits.
+
+    Args:
+        trial (optuna.Trial): Optuna trial object for suggesting hyperparameters.
+        train_data (pd.DataFrame): Historical market data for training.
+
+    Returns:
+        float: Median Calmar Ratio across cross-validation splits.
+               Returns a large negative value if the result is NaN.
+    """
     data = train_data.copy()
 
     rsi_window = trial.suggest_int("rsi_window", 5, 30)
@@ -23,10 +34,9 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     rsi_sell = trial.suggest_int("rsi_sell", 60, 90)
 
     # --- Trade hyperparameters ---
-    sl = trial.suggest_float("SL", 0.01, 0.2,)
+    sl = trial.suggest_float("SL", 0.01, 0.2)
     tp = trial.suggest_float("TP", 0.01, 0.2)
     n_shares = trial.suggest_float("n_shares", 0.1, 10)
-
 
     # --- Add indicators with params ---
     data = add_indicators(

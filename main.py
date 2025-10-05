@@ -12,16 +12,21 @@ from plots import plot_port_value_train, plot_port_value_test_val
 from tables import returns_table, show_table
 
 if __name__ == "__main__":
-    # --- Load data ---
+    # ============================
+    # 1. Load and Split Data
+    # ============================
     df = load_data("Binance_BTCUSDT_1h.csv")
     train_data, test_data, val_data = data_split(df)
 
-    # --- Run Optuna optimization (on Train only) ---
+    # ============================
+    # 2. Hyperparameter Optimization (Train Set)
+    # ============================
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
         n_trials=10,
+        n_jobs=-1,
         show_progress_bar=True
     )
 
@@ -30,7 +35,9 @@ if __name__ == "__main__":
     for k, v in params.items():
         print(f"  {k}: {v}")
 
-    # --- Run Train set ---
+    # ============================
+    # 3. Backtest on Train Set
+    # ============================
     print("\n--- Running on Train set ---")
     train_data_proc = add_indicators(
         train_data.copy(),
@@ -47,7 +54,6 @@ if __name__ == "__main__":
         bb_window=params["bb_window"],
         bb_dev=params["bb_dev"]
     )
-
     port_hist_train, final_cash_train = backtest(
         train_data_proc,
         SL=params["SL"],
@@ -62,7 +68,9 @@ if __name__ == "__main__":
         print(f"{key}: {value:.4f}")
     print(f"Final Cash: {final_cash_train:.2f}")
 
-    # --- Run Test set ---
+    # ============================
+    # 4. Backtest on Test Set
+    # ============================
     print("\n--- Running on Test set ---")
     test_data_proc = add_indicators(
         test_data.copy(),
@@ -79,7 +87,6 @@ if __name__ == "__main__":
         bb_window=params["bb_window"],
         bb_dev=params["bb_dev"]
     )
-
     port_hist_test, final_cash_test = backtest(
         test_data_proc,
         SL=params["SL"],
@@ -92,7 +99,9 @@ if __name__ == "__main__":
         print(f"{key}: {value:.4f}")
     print(f"Final Cash: {final_cash_test:.2f}")
 
-    # --- Run Validation set ---
+    # ============================
+    # 5. Backtest on Validation Set
+    # ============================
     print("\n--- Running on Validation set ---")
     val_data_proc = add_indicators(
         val_data.copy(),
@@ -121,31 +130,31 @@ if __name__ == "__main__":
         print(f"{key}: {value:.4f}")
     print(f"Final Cash: {final_cash_val:.2f}")
 
-    # --- Plot Test + Validation as one continuous series ---
+    # ============================
+    # 6. Plot Combined Test + Validation
+    # ============================
     plot_port_value_test_val(
         test_hist=port_hist_test,
         test_dates=test_data_proc.Date,
         val_hist=port_hist_val,
         val_dates=val_data_proc.Date
     )
-    port_series = pd.Series(port_hist_train + port_hist_test + port_hist_val)
 
-
-    # --- Train ---
+    # ============================
+    # 7. Generate Returns Tables
+    # ============================
     port_series_train = pd.Series(
         port_hist_train, 
-        index=pd.to_datetime(train_data_proc['Date'])  # ensure DatetimeIndex
+        index=pd.to_datetime(train_data_proc['Date'])
     )
     returns_table_train = returns_table(port_series_train)
 
-    # --- Test ---
     port_series_test = pd.Series(
         port_hist_test, 
         index=pd.to_datetime(test_data_proc['Date'])
     )
     returns_table_test = returns_table(port_series_test)
 
-    # --- Validation ---
     port_series_val = pd.Series(
         port_hist_val, 
         index=pd.to_datetime(val_data_proc['Date'])
@@ -153,10 +162,13 @@ if __name__ == "__main__":
     returns_table_val = returns_table(port_series_val)
 
     print(port_series_val.index.min(), port_series_val.index.max())
-    # Show tables
 
+    # ============================
+    # 8. Display Tables
+    # ============================
     show_table(returns_table_train, "Train Set Returns Table")
     show_table(returns_table_test, "Test Set Returns Table")
     show_table(returns_table_val, "Validation Set Returns Table")
+
  
     

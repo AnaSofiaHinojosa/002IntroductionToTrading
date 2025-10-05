@@ -5,6 +5,17 @@ import numpy as np
 
 # Sharpe Ratio 
 def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> float:
+    """
+    Calculate the annualized Sharpe Ratio.
+
+    Args:
+        returns (pd.Series): Periodic returns.
+        risk_free_rate (float): Annual risk-free rate.
+        periods_per_year (int): Number of periods per year.
+
+    Returns:
+        float: Sharpe Ratio.
+    """
     excess_returns = returns - risk_free_rate / periods_per_year
     ann_return = np.mean(excess_returns) * periods_per_year
     ann_vol = np.std(excess_returns, ddof=1) * np.sqrt(periods_per_year)
@@ -12,6 +23,17 @@ def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_ye
 
 # Sortino ratio
 def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760):
+    """
+    Calculate the annualized Sortino Ratio.
+
+    Args:
+        returns (pd.Series): Periodic returns.
+        risk_free_rate (float): Annual risk-free rate.
+        periods_per_year (int): Number of periods per year.
+
+    Returns:
+        float: Sortino Ratio.
+    """
     excess_returns = returns - risk_free_rate / periods_per_year
     ann_return = np.mean(excess_returns) * periods_per_year
     downside = returns[returns < 0]
@@ -20,6 +42,16 @@ def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_y
 
 # Calmar ratio
 def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
+    """
+    Calculate the Calmar Ratio.
+
+    Args:
+        returns (pd.Series): Periodic returns.
+        periods_per_year (int): Number of periods per year.
+
+    Returns:
+        float: Calmar Ratio.
+    """
     cum_returns = (1 + returns).cumprod()
     peak = cum_returns.cummax()
     drawdowns = (cum_returns - peak) / peak
@@ -29,6 +61,15 @@ def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
 
 # Maximum Drawdown
 def max_drawdown(returns: pd.Series):
+    """
+    Calculate the maximum drawdown.
+
+    Args:
+        returns (pd.Series): Periodic returns.
+
+    Returns:
+        float: Maximum drawdown.
+    """
     cum_returns = (1 + returns).cumprod()
     peak = cum_returns.cummax()
     drawdowns = (cum_returns - peak) / peak
@@ -36,12 +77,31 @@ def max_drawdown(returns: pd.Series):
 
 # Win Rate
 def win_rate(returns: pd.Series):
+    """
+    Calculate the win rate (fraction of positive returns).
+
+    Args:
+        returns (pd.Series): Periodic returns.
+
+    Returns:
+        float: Win rate.
+    """
     return (returns > 0).mean()
 
 # --- Metrics summary ---
 
-
 def performance_summary(prices: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> dict:
+    """
+    Compute a summary of performance metrics from a price series.
+
+    Args:
+        prices (pd.Series): Time series of prices.
+        risk_free_rate (float): Annual risk-free rate.
+        periods_per_year (int): Number of periods per year.
+
+    Returns:
+        dict: Dictionary of performance metrics.
+    """
     returns = prices.pct_change().dropna()
     metrics = {
         "Sharpe Ratio": sharpe_ratio(returns, risk_free_rate, periods_per_year),

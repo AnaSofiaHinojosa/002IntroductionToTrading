@@ -49,6 +49,8 @@ def get_signals(
     Returns:
         pd.DataFrame: DataFrame with buy/sell signals added.
     """
+    data = data.copy()
+    
     # RSI signals
     data['buy_signal_rsi'] = data['RSI'] < rsi_buy
     data['sell_signal_rsi'] = data['RSI'] > rsi_sell
@@ -80,7 +82,3 @@ def get_signals(
     ) >= 2
 
     return data
-
-
-
-

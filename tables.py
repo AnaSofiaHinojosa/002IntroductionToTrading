@@ -3,6 +3,15 @@ import matplotlib.pyplot as plt
 
 
 def returns_table(port_series: pd.Series) -> pd.DataFrame:
+    """
+    Compute monthly, quarterly, and annual return rates from a portfolio value series.
+
+    Args:
+        port_series (pd.Series): Time series of portfolio values.
+
+    Returns:
+        pd.DataFrame: DataFrame with columns for monthly, quarterly, and annual returns.
+    """
     if not isinstance(port_series.index, pd.DatetimeIndex):
         port_series.index = pd.to_datetime(port_series.index)
 
@@ -25,14 +34,45 @@ def returns_table(port_series: pd.Series) -> pd.DataFrame:
 
 def show_table(df: pd.DataFrame, title: str = "Table"):
     """
-    Display a DataFrame as a table using matplotlib.
-    If more than 15 rows, split into two side-by-side tables.
+    Display a DataFrame as a stylized table using matplotlib.
+
+    If the DataFrame has more than 25 rows, it is split into two side-by-side tables.
+    Cells are color-coded: green for positive values, red for negative values.
+
+    Args:
+        df (pd.DataFrame): DataFrame to display.
+        title (str): Title to display above the table.
     """
     df_display = df.copy().round(4).astype(str).replace("nan", "—")
     n_rows = len(df_display)
 
-    if n_rows > 25:
+    def color_cells(table, df_chunk):
+        """
+        Apply green/red background colors based on numeric sign,
+        but skip headers and row labels.
 
+        Args:
+            table: Matplotlib table object.
+            df_chunk (pd.DataFrame): Data chunk used to determine cell colors.
+        """
+        n_rows, n_cols = df_chunk.shape
+
+        for (i, j), cell in table.get_celld().items():
+            if i == 0:
+                cell.set_text_props(weight='bold')
+                continue
+            if j == -1:
+                continue
+            try:
+                val = float(df_chunk.iloc[i-1, j])
+                if val > 0:
+                    cell.set_facecolor("#dcefc5")
+                elif val < 0:
+                    cell.set_facecolor("#f7d6d6")
+            except Exception:
+                pass
+
+    if n_rows > 25:
         mid = (n_rows + 1) // 2
         df1, df2 = df_display.iloc[:mid], df_display.iloc[mid:]
 
@@ -48,6 +88,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
                 rowLoc="center",
                 loc="center",
             )
+            color_cells(table, df_display)
             table.auto_set_font_size(False)
             table.set_fontsize(10)
             table.auto_set_column_width(col=list(range(len(chunk.columns))))
@@ -63,6 +104,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
             rowLoc="center",
             loc="center",
         )
+        color_cells(table, df_display)
         table.auto_set_font_size(False)
         table.set_fontsize(10)
         table.auto_set_column_width(col=list(range(len(df_display.columns))))
