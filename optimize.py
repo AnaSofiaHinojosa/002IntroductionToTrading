@@ -25,18 +25,20 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     """
     data = train_data.copy()
 
-    rsi_window = trial.suggest_int("rsi_window", 5, 30)
-    sma_window = trial.suggest_int("sma_window", 5, 50)
-    bb_window = trial.suggest_int("bb_window", 10, 40)
-    bb_dev = trial.suggest_float("bb_dev", 1.0, 3.0)
+    # --- Indicator windows ---
+    rsi_window = trial.suggest_int("rsi_window", 7, 21)
+    sma_window = trial.suggest_int("sma_window", 10, 30)
+    bb_window = trial.suggest_int("bb_window", 10, 25)
+    bb_dev = trial.suggest_float("bb_dev", 1.5, 2.5, step=0.05)
 
+    # --- RSI thresholds ---
     rsi_buy = trial.suggest_int("rsi_buy", 10, 40)
-    rsi_sell = trial.suggest_int("rsi_sell", 60, 90)
+    rsi_sell = trial.suggest_int("rsi_sell", 60, 80)        # independent from rsi_buy
 
     # --- Trade hyperparameters ---
-    sl = trial.suggest_float("SL", 0.01, 0.2)
-    tp = trial.suggest_float("TP", 0.01, 0.2)
-    n_shares = trial.suggest_float("n_shares", 0.1, 10)
+    sl = trial.suggest_float("SL", 0.02, 0.15, log=True)        # 2%-15%
+    tp = trial.suggest_float("TP", 0.02, 0.2, log=True)         # 2%-20%
+    n_shares = trial.suggest_float("n_shares", 0.3, 10.0)       # fractional allowed
 
     # --- Add indicators with params ---
     data = add_indicators(
@@ -71,7 +73,7 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
         calmar = calmar_ratio(returns, periods_per_year=8760) 
         calmars.append(calmar)
 
-    mean_calmar = np.median(calmars)
+    mean_calmar = np.mean(calmars)
 
     # If mean_calmar is NaN, assign very low value
     if np.isnan(mean_calmar):

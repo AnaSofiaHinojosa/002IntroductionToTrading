@@ -8,7 +8,7 @@ from indicators import add_indicators, get_signals
 from backtesting import backtest
 from metrics import performance_summary
 from optimize import optimize
-from plots import plot_port_value_train, plot_port_value_test_val
+from plots import plot_port_value_train, plot_port_value_test_val, plot_return_distribution, plot_returns_heatmap
 from tables import returns_table, show_table
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=10,
+        n_trials=20,
         n_jobs=-1,
         show_progress_bar=True
     )
@@ -170,5 +170,22 @@ if __name__ == "__main__":
     show_table(returns_table_test, "Test Set Returns Table")
     show_table(returns_table_val, "Validation Set Returns Table")
 
- 
+    # ============================
+    # 9. Extra Charts / Visualizations
+    # ============================
+
+    # Histogram of returns (train)
+    plot_return_distribution(port_series_train, title="Train Set Returns Distribution")
+
+    # Monthly / Quarterly / Annual Returns Heatmaps
+    plot_returns_heatmap(port_series_train, freq='M', title="Train Set Monthly Returns Heatmap")
+    plot_returns_heatmap(port_series_train, freq='Q', title="Train Set Quarterly Returns Heatmap")
+
+    plot_returns_heatmap(port_series_test, freq='M', title="Test Set Monthly Returns Heatmap")
+    plot_returns_heatmap(port_series_test, freq='Q', title="Test Set Quarterly Returns Heatmap")
+
+    plot_returns_heatmap(port_series_val, freq='M', title="Validation Set Monthly Returns Heatmap")
+    plot_returns_heatmap(port_series_val, freq='Q', title="Validation Set Quarterly Returns Heatmap")
+
     
+        
