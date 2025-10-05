@@ -25,7 +25,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=20,
+        n_trials=50,
         n_jobs=-1,
         show_progress_bar=True
     )
