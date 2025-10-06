@@ -88,7 +88,7 @@ def win_rate(returns: pd.Series):
     """
     return (returns > 0).mean()
 
-# --- Metrics summary ---
+# Metrics summary 
 
 def performance_summary(prices: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> dict:
     """

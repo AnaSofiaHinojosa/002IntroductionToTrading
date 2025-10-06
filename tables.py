@@ -15,6 +15,8 @@ def returns_table(port_series: pd.Series) -> pd.DataFrame:
     if not isinstance(port_series.index, pd.DatetimeIndex):
         port_series.index = pd.to_datetime(port_series.index)
 
+    # Resample to get end-of-period values and compute returns
+
     monthly_returns = port_series.resample('ME').last().pct_change().round(4)
     quarterly_returns = port_series.resample('QE').last().pct_change().round(4)
     annual_returns = port_series.resample('YE').last().pct_change().round(4)
@@ -22,6 +24,8 @@ def returns_table(port_series: pd.Series) -> pd.DataFrame:
     full_index = monthly_returns.index
     quarterly_aligned = quarterly_returns.reindex(full_index, method='ffill')
     annual_aligned = annual_returns.reindex(full_index, method='ffill')
+
+    # Combine into a single DataFrame
 
     returns_df = pd.DataFrame({
         "Monthly": monthly_returns,
@@ -46,6 +50,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
     df_display = df.copy().round(4).astype(str).replace("nan", "—")
     n_rows = len(df_display)
 
+    # Function to color cells based on value
     def color_cells(table, df_chunk):
         """
         Apply green/red background colors based on numeric sign,
@@ -71,7 +76,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
                     cell.set_facecolor("#f7d6d6")
             except Exception:
                 pass
-
+    # Add condition for length            
     if n_rows > 25:
         mid = (n_rows + 1) // 2
         df1, df2 = df_display.iloc[:mid], df_display.iloc[mid:]
@@ -88,7 +93,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
                 rowLoc="center",
                 loc="center",
             )
-            color_cells(table, df_display)
+            color_cells(table, chunk)
             table.auto_set_font_size(False)
             table.set_fontsize(10)
             table.auto_set_column_width(col=list(range(len(chunk.columns))))

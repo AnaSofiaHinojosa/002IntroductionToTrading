@@ -56,72 +56,95 @@ def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
     plt.tight_layout()
     plt.show()
 
-def plot_return_distribution(port_series: pd.Series, title="Return Distribution", bins=50, overlay_normal=True):
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+
+def plot_return_distribution(port_series: pd.Series, title="Portfolio Return Distribution", bins=30) -> None:
     """
     Plot the distribution of portfolio returns as a histogram.
 
-    Optionally overlays a normal probability density function (PDF) for comparison,
-    and displays skewness and kurtosis in the legend.
-
     Args:
-        port_series (pd.Series): Time series of portfolio values.
+        port_series (pd.Series): Time series of portfolio values (index must be datetime-like).
         title (str): Title of the plot.
         bins (int): Number of histogram bins.
-        overlay_normal (bool): Whether to overlay a normal distribution curve.
     """
-    returns = port_series.pct_change().dropna()
-    mu, sigma = returns.mean(), returns.std()
-    
-    plt.figure(figsize=(10,5))
-    sns.histplot(returns, bins=bins, kde=False, color='palevioletred', edgecolor='black', stat='density')
-    
-    if overlay_normal:
-        x = np.linspace(returns.min(), returns.max(), 100)
-        plt.plot(x, stats.norm.pdf(x, mu, sigma), color='maroon', lw=2, label='Normal PDF')
-    
+
+    # --- Ensure datetime index and resample monthly ---
+    port_series = port_series.sort_index()
+
+    # Resample to end-of-month values
+    monthly_values = port_series.resample('ME').last()
+
+    # Compute monthly returns
+    monthly_returns = monthly_values.pct_change().dropna()
+
+    # Plot 
+    plt.figure(figsize=(10, 5))
+    sns.histplot(monthly_returns, bins=bins, kde=False, color='palevioletred',
+                 stat='density')
+
     plt.title(title)
-    plt.xlabel("Returns")
+    plt.xlabel("Monthly Returns")
     plt.ylabel("Density")
     plt.grid(linestyle=':', alpha=0.5)
-    
-    skewness = stats.skew(returns)
-    kurt = stats.kurtosis(returns)
-    plt.legend(title=f"Skew: {skewness:.2f}, Kurtosis: {kurt:.2f}")
-    
+
     plt.tight_layout()
+    plt.grid(linestyle=':', alpha=0.5)
     plt.show()
 
-
-def plot_returns_heatmap(port_series: pd.Series, freq='M', title="Returns Heatmap"):
+def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     """
-    Plot a heatmap of average returns grouped by month or quarter and year.
+    Plots rolling volatility of monthly returns.
 
-    Positive returns are shown in green, negative in red. Useful for visualizing
-    seasonal or cyclical patterns in performance.
-
-    Args:
-        port_series (pd.Series): Time series of portfolio values.
-        freq (str): Frequency for grouping ('M' for month, 'Q' for quarter).
-        title (str): Title of the heatmap.
+    Parameters:
+    - returns: pd.Series of periodic returns (index = datetime)
+    - window: rolling window size (default=60 periods)
     """
-    # Ensure DatetimeIndex
-    port_series = port_series.copy()
-    if not isinstance(port_series.index, pd.DatetimeIndex):
-        port_series.index = pd.to_datetime(port_series.index)
     
+    #port_series = port_series.sort_index()
+    #port_series = port_series.resample('M').last()
     returns = port_series.pct_change().dropna()
-    
-    if freq == 'M':
-        grouped = returns.groupby([returns.index.year, returns.index.month]).mean().unstack()
-        xlabel = "Month"
-    elif freq == 'Q':
-        grouped = returns.groupby([returns.index.year, returns.index.quarter]).mean().unstack()
-        xlabel = "Quarter"
-    
-    plt.figure(figsize=(12,6))
-    sns.heatmap(grouped, annot=True, fmt=".4f", center=0, cmap="RdYlGn", linewidths=0.5)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel("Year")
+    rolling_vol = returns.rolling(window).std()
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(rolling_vol, label=f'{window}-period Rolling Volatility', color='lightcoral')
+    plt.title(f'Rolling Volatility ({window}-period)')
+    plt.xlabel('Date')
+    plt.ylabel('Volatility (Std. Dev.)')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
+    plt.grid(linestyle=':', alpha=0.5)
     plt.show()
+
+
+def plot_signals(price, buy_signals, sell_signals):
+    """
+    Overlays buy/sell signals on price chart.
+
+    Parameters:
+    - price: pd.Series of asset/portfolio prices (index = datetime)
+    - buy_signals: list or pd.Series of booleans (True where buy occurs)
+    - sell_signals: list or pd.Series of booleans (True where sell occurs)
+    """
+    plt.figure(figsize=(15, 5))
+
+    plt.plot(price.index, price, label='Price', color='black', linewidth=1)
+
+    # Overlay buy/sell markers
+    plt.scatter(price.index[buy_signals], price[buy_signals], label='Buy', marker='^', color='darkseagreen', s=80)
+    plt.scatter(price.index[sell_signals], price[sell_signals], label='Sell', marker='v', color='indianred', s=80)
+
+    plt.title('Buy/Sell Points on Price Chart')
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.grid(linestyle=':', alpha=0.5)
+    plt.show()
+
+

@@ -91,7 +91,7 @@ def backtest(data: pd.DataFrame, SL: float, TP: float, n_shares: float) -> tuple
             port_value += pos.n_shares * row.Close  # Market value of long positions
         for pos in active_short:
             port_value += (pos.price * pos.n_shares) + \
-                          (pos.price - row.Close) * pos.n_shares  # Unrealized P&L on shorts
+                          (pos.price - row.Close) * pos.n_shares 
 
         port_hist.append(port_value)
 

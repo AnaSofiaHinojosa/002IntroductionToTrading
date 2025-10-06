@@ -25,22 +25,22 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     """
     data = train_data.copy()
 
-    # --- Indicator windows ---
+    # Indicator hyperparameters
     rsi_window = trial.suggest_int("rsi_window", 7, 21)
     sma_window = trial.suggest_int("sma_window", 10, 30)
     bb_window = trial.suggest_int("bb_window", 10, 25)
     bb_dev = trial.suggest_float("bb_dev", 1.5, 2.5, step=0.05)
 
-    # --- RSI thresholds ---
+    # RSI thresholds
     rsi_buy = trial.suggest_int("rsi_buy", 10, 40)
-    rsi_sell = trial.suggest_int("rsi_sell", 60, 80)        # independent from rsi_buy
+    rsi_sell = trial.suggest_int("rsi_sell", 60, 87)    
 
-    # --- Trade hyperparameters ---
-    sl = trial.suggest_float("SL", 0.02, 0.15, log=True)        # 2%-15%
-    tp = trial.suggest_float("TP", 0.02, 0.2, log=True)         # 2%-20%
-    n_shares = trial.suggest_float("n_shares", 0.3, 10.0)       # fractional allowed
+    # Trade hyperparameters
+    sl = trial.suggest_float("SL", 0.02, 0.2)
+    tp = trial.suggest_float("TP", 0.02, 0.2)
+    n_shares = trial.suggest_float("n_shares", 0.3, 10.0)      
 
-    # --- Add indicators with params ---
+    # Add indicators with params 
     data = add_indicators(
         data,
         rsi_window=rsi_window,
@@ -54,8 +54,8 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
         rsi_sell=rsi_sell
     )
 
-    # --- Cross-validation ---
-    n_splits = 5
+    # Cross-validation 
+    n_splits = 7
     calmars = []
     len_data = len(data)
 

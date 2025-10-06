@@ -8,7 +8,7 @@ from indicators import add_indicators, get_signals
 from backtesting import backtest
 from metrics import performance_summary
 from optimize import optimize
-from plots import plot_port_value_train, plot_port_value_test_val, plot_return_distribution, plot_returns_heatmap
+from plots import plot_port_value_train, plot_port_value_test_val, plot_return_distribution, plot_rolling_volatility, plot_signals
 from tables import returns_table, show_table
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=50,
+        n_trials=10,
         n_jobs=-1,
         show_progress_bar=True
     )
@@ -175,17 +175,38 @@ if __name__ == "__main__":
     # ============================
 
     # Histogram of returns (train)
-    plot_return_distribution(port_series_train, title="Train Set Returns Distribution")
+    plot_return_distribution(port_series_train, title="Train Set Monthly Returns Distribution")
 
-    # Monthly / Quarterly / Annual Returns Heatmaps
-    plot_returns_heatmap(port_series_train, freq='M', title="Train Set Monthly Returns Heatmap")
-    plot_returns_heatmap(port_series_train, freq='Q', title="Train Set Quarterly Returns Heatmap")
+    # Histogram of returns (test)
+    plot_return_distribution(port_series_test, title="Test Set Monthly Returns Distribution")
 
-    plot_returns_heatmap(port_series_test, freq='M', title="Test Set Monthly Returns Heatmap")
-    plot_returns_heatmap(port_series_test, freq='Q', title="Test Set Quarterly Returns Heatmap")
+    # Histogram of returns (validation)
+    plot_return_distribution(port_series_val, title="Validation Set Monthly Returns Distribution")
 
-    plot_returns_heatmap(port_series_val, freq='M', title="Validation Set Monthly Returns Heatmap")
-    plot_returns_heatmap(port_series_val, freq='Q', title="Validation Set Quarterly Returns Heatmap")
+    # Rolling volatility of returns (train)
+    plot_rolling_volatility(port_series_train, window=60)
 
-    
-        
+    # Rolling volatility of returns (test)
+    plot_rolling_volatility(port_series_test, window=60)
+
+    # Rolling volatility of returns (validation)
+    plot_rolling_volatility(port_series_val, window=60)
+
+    # Plot buy/sell signals on price chart (train)
+    plot_signals(
+        price=train_data_proc['Close'],
+        buy_signals=train_data_proc['buy_signal'],
+        sell_signals=train_data_proc['sell_signal']
+    )
+    # Plot buy/sell signals on price chart (test)
+    plot_signals(
+        price=test_data_proc['Close'],
+        buy_signals=test_data_proc['buy_signal'],
+        sell_signals=test_data_proc['sell_signal']
+    )
+    # Plot buy/sell signals on price chart (validation)
+    plot_signals(
+        price=val_data_proc['Close'],
+        buy_signals=val_data_proc['buy_signal'],
+        sell_signals=val_data_proc['sell_signal']
+    )
