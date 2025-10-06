@@ -32,8 +32,8 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     bb_dev = trial.suggest_float("bb_dev", 1.5, 2.5, step=0.05)
 
     # RSI thresholds
-    rsi_buy = trial.suggest_int("rsi_buy", 10, 40)
-    rsi_sell = trial.suggest_int("rsi_sell", 60, 87)    
+    rsi_buy = trial.suggest_int("rsi_buy", 10, 45)
+    rsi_sell = trial.suggest_int("rsi_sell", 60, 95)    
 
     # Trade hyperparameters
     sl = trial.suggest_float("SL", 0.02, 0.2)

@@ -121,7 +121,7 @@ def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     plt.show()
 
 
-def plot_signals(price, buy_signals, sell_signals):
+def plot_signals(df, buy_signals, sell_signals):
     """
     Overlays buy/sell signals on price chart.
 
@@ -132,14 +132,14 @@ def plot_signals(price, buy_signals, sell_signals):
     """
     plt.figure(figsize=(15, 5))
 
-    plt.plot(price.index, price, label='Price', color='black', linewidth=1)
+    plt.plot(df.index, df['Close'], label='Price', color='black', linewidth=1)
 
     # Overlay buy/sell markers
-    plt.scatter(price.index[buy_signals], price[buy_signals], label='Buy', marker='^', color='darkseagreen', s=80)
-    plt.scatter(price.index[sell_signals], price[sell_signals], label='Sell', marker='v', color='indianred', s=80)
+    plt.scatter(df.index[buy_signals], df['Close'][buy_signals], label='Buy', marker='^', color='darkseagreen', s=80)
+    plt.scatter(df.index[sell_signals], df['Close'][sell_signals], label='Sell', marker='v', color='indianred', s=80)
 
     plt.title('Buy/Sell Points on Price Chart')
-    plt.xlabel('Date')
+    plt.xlabel('Index')
     plt.ylabel('Price')
     plt.legend()
     plt.grid(True, alpha=0.3)

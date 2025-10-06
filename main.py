@@ -25,7 +25,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=10,
+        n_trials=300,
         n_jobs=-1,
         show_progress_bar=True
     )
@@ -194,19 +194,19 @@ if __name__ == "__main__":
 
     # Plot buy/sell signals on price chart (train)
     plot_signals(
-        price=train_data_proc['Close'],
+        df=train_data_proc,
         buy_signals=train_data_proc['buy_signal'],
         sell_signals=train_data_proc['sell_signal']
     )
     # Plot buy/sell signals on price chart (test)
     plot_signals(
-        price=test_data_proc['Close'],
+        df=test_data_proc,
         buy_signals=test_data_proc['buy_signal'],
         sell_signals=test_data_proc['sell_signal']
     )
     # Plot buy/sell signals on price chart (validation)
     plot_signals(
-        price=val_data_proc['Close'],
+        df=val_data_proc,
         buy_signals=val_data_proc['buy_signal'],
         sell_signals=val_data_proc['sell_signal']
     )
