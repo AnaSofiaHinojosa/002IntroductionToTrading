@@ -11,9 +11,9 @@ This project implements and evaluates a rule-based trading strategy using Python
 ## Features
 
 - Signal generation using RSI, SMA, and Bollinger Bands
-- Long entries in oversold conditions, short entries in overbought conditions
+- Long and short entries
 - Performance metrics including final cash, Sharpe ratio, Sortino ratio, win rate, and drawdown
 - Hyperparameter optimization with Optuna
 - Visualizations of portfolio value, return distributions, and signal timing
 - Backtesting simulation
-- Clean output formatting for reproducible analysis
+- Clean output for analysis
