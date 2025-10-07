@@ -36,7 +36,7 @@ def returns_table(port_series: pd.Series) -> pd.DataFrame:
     return returns_df
 
 
-def show_table(df: pd.DataFrame, title: str = "Table"):
+def show_table(df: pd.DataFrame, title: str = "Table") -> None:
     """
     Display a DataFrame as a stylized table using matplotlib.
 

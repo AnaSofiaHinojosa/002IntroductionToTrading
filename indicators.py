@@ -13,8 +13,7 @@ def add_indicators(
     Computes and appends technical indicators to a financial time series DataFrame.
 
     This function calculates the Relative Strength Index (RSI), Simple Moving Average (SMA),
-    and Bollinger Bands using the specified window sizes and deviation factor. These indicators
-    are commonly used to assess momentum, trend direction, and volatility in asset prices.
+    and Bollinger Bands using the specified window sizes and deviation factor. 
 
     Parameters:
         data (pd.DataFrame): Input DataFrame containing a 'Close' price column.
@@ -29,7 +28,6 @@ def add_indicators(
             - 'SMA': Simple Moving Average
             - 'BB_Upper': Upper Bollinger Band
             - 'BB_Lower': Lower Bollinger Band
-        Rows with missing values due to indicator calculation are dropped.
     """
 
     rsi_indicator = ta.momentum.RSIIndicator(

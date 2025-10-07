@@ -20,13 +20,14 @@ def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_ye
     """
     excess_returns = returns - risk_free_rate / periods_per_year
     ann_return = np.mean(excess_returns) * periods_per_year
-    ann_vol = np.std(excess_returns, ddof=1) * np.sqrt(periods_per_year)
+    ann_vol = np.std(excess_returns, ddof=1) * \
+        np.sqrt(periods_per_year)  # ddof=1 for sample std
     return ann_return / ann_vol if ann_vol != 0 else np.nan
 
 # Sortino ratio
 
 
-def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760):
+def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> float:
     """
     Calculate the annualized Sortino Ratio.
 
@@ -47,7 +48,7 @@ def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_y
 # Calmar ratio
 
 
-def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
+def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760) -> float:
     """
     Calculate the Calmar Ratio.
 
@@ -68,7 +69,7 @@ def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
 # Maximum Drawdown
 
 
-def max_drawdown(returns: pd.Series):
+def max_drawdown(returns: pd.Series) -> float:
     """
     Calculate the maximum drawdown.
 
@@ -86,7 +87,7 @@ def max_drawdown(returns: pd.Series):
 # Win Rate
 
 
-def win_rate(returns: pd.Series):
+def win_rate(returns: pd.Series) -> float:
     """
     Calculate the win rate (fraction of positive returns).
 

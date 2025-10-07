@@ -95,15 +95,13 @@ def plot_return_distribution(port_series: pd.Series, title="Portfolio Return Dis
 
 def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     """
-    Plots rolling volatility of monthly returns.
+    Plots rolling volatility of hourly returns.
 
     Parameters:
     - returns: pd.Series of periodic returns (index = datetime)
     - window: rolling window size (default=60 periods)
     """
 
-    # port_series = port_series.sort_index()
-    # port_series = port_series.resample('M').last()
     returns = port_series.pct_change().dropna()
     rolling_vol = returns.rolling(window).std()
 
