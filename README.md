@@ -1,5 +1,7 @@
 # 002IntroductionToTrading
 Project 002: Introduction to Trading for Microstructure and Trading Systems Class
+
+
 Ana Sofía Hinojosa Bale
 
 ## Overview
