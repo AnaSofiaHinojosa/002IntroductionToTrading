@@ -3,7 +3,9 @@ import numpy as np
 
 # --- Individual metrics ---
 
-# Sharpe Ratio 
+# Sharpe Ratio
+
+
 def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> float:
     """
     Calculate the annualized Sharpe Ratio.
@@ -22,6 +24,8 @@ def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_ye
     return ann_return / ann_vol if ann_vol != 0 else np.nan
 
 # Sortino ratio
+
+
 def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760):
     """
     Calculate the annualized Sortino Ratio.
@@ -41,6 +45,8 @@ def sortino_ratio(returns: pd.Series, risk_free_rate: float = 0.0, periods_per_y
     return ann_return / downside_vol if downside_vol != 0 else np.nan
 
 # Calmar ratio
+
+
 def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
     """
     Calculate the Calmar Ratio.
@@ -60,6 +66,8 @@ def calmar_ratio(returns: pd.Series, periods_per_year: int = 8760):
     return ann_return / abs(max_dd) if max_dd != 0 else np.nan
 
 # Maximum Drawdown
+
+
 def max_drawdown(returns: pd.Series):
     """
     Calculate the maximum drawdown.
@@ -76,6 +84,8 @@ def max_drawdown(returns: pd.Series):
     return drawdowns.min()
 
 # Win Rate
+
+
 def win_rate(returns: pd.Series):
     """
     Calculate the win rate (fraction of positive returns).
@@ -88,7 +98,8 @@ def win_rate(returns: pd.Series):
     """
     return (returns > 0).mean()
 
-# Metrics summary 
+# Metrics summary
+
 
 def performance_summary(prices: pd.Series, risk_free_rate: float = 0.0, periods_per_year: int = 8760) -> dict:
     """

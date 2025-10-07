@@ -76,7 +76,7 @@ def show_table(df: pd.DataFrame, title: str = "Table"):
                     cell.set_facecolor("#f7d6d6")
             except Exception:
                 pass
-    # Add condition for length            
+    # Add condition for length
     if n_rows > 25:
         mid = (n_rows + 1) // 2
         df1, df2 = df_display.iloc[:mid], df_display.iloc[mid:]

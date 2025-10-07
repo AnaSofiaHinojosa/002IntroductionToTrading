@@ -25,7 +25,7 @@ if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
     study.optimize(
         lambda trial: optimize(trial, train_data),
-        n_trials=300,
+        n_trials=200,
         n_jobs=-1,
         show_progress_bar=True
     )
@@ -60,7 +60,8 @@ if __name__ == "__main__":
         TP=params["TP"],
         n_shares=params["n_shares"]
     )
-    metrics_train = performance_summary(pd.Series(port_hist_train, index=train_data_proc.index), periods_per_year=8760)
+    metrics_train = performance_summary(
+        pd.Series(port_hist_train, index=train_data_proc.index), periods_per_year=8760)
     plot_port_value_train(port_hist_train, train_data_proc.Date)
 
     print("\nPerformance Summary (Train):")
@@ -93,7 +94,8 @@ if __name__ == "__main__":
         TP=params["TP"],
         n_shares=params["n_shares"]
     )
-    metrics_test = performance_summary(pd.Series(port_hist_test, index=test_data_proc.index), periods_per_year=8760)
+    metrics_test = performance_summary(
+        pd.Series(port_hist_test, index=test_data_proc.index), periods_per_year=8760)
     print("\nPerformance Summary (Test):")
     for key, value in metrics_test.items():
         print(f"{key}: {value:.4f}")
@@ -124,7 +126,8 @@ if __name__ == "__main__":
         TP=params["TP"],
         n_shares=params["n_shares"]
     )
-    metrics_val = performance_summary(pd.Series(port_hist_val, index=val_data_proc.index), periods_per_year=8760)
+    metrics_val = performance_summary(
+        pd.Series(port_hist_val, index=val_data_proc.index), periods_per_year=8760)
     print("\nPerformance Summary (Validation):")
     for key, value in metrics_val.items():
         print(f"{key}: {value:.4f}")
@@ -144,19 +147,19 @@ if __name__ == "__main__":
     # 7. Generate Returns Tables
     # ============================
     port_series_train = pd.Series(
-        port_hist_train, 
+        port_hist_train,
         index=pd.to_datetime(train_data_proc['Date'])
     )
     returns_table_train = returns_table(port_series_train)
 
     port_series_test = pd.Series(
-        port_hist_test, 
+        port_hist_test,
         index=pd.to_datetime(test_data_proc['Date'])
     )
     returns_table_test = returns_table(port_series_test)
 
     port_series_val = pd.Series(
-        port_hist_val, 
+        port_hist_val,
         index=pd.to_datetime(val_data_proc['Date'])
     )
     returns_table_val = returns_table(port_series_val)
@@ -175,13 +178,16 @@ if __name__ == "__main__":
     # ============================
 
     # Histogram of returns (train)
-    plot_return_distribution(port_series_train, title="Train Set Monthly Returns Distribution")
+    plot_return_distribution(
+        port_series_train, title="Train Set Monthly Returns Distribution")
 
     # Histogram of returns (test)
-    plot_return_distribution(port_series_test, title="Test Set Monthly Returns Distribution")
+    plot_return_distribution(
+        port_series_test, title="Test Set Monthly Returns Distribution")
 
     # Histogram of returns (validation)
-    plot_return_distribution(port_series_val, title="Validation Set Monthly Returns Distribution")
+    plot_return_distribution(
+        port_series_val, title="Validation Set Monthly Returns Distribution")
 
     # Rolling volatility of returns (train)
     plot_rolling_volatility(port_series_train, window=60)

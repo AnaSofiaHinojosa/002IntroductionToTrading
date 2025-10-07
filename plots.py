@@ -23,6 +23,7 @@ def plot_port_value_train(port_hist: list[float], dates: pd.Series) -> None:
     plt.tight_layout()
     plt.show()
 
+
 def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
                              val_hist: list[float], val_dates: pd.Series) -> None:
     """
@@ -45,7 +46,8 @@ def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
     # Shift Validation to start from last Test value
     shift = test_hist[-1] - val_hist[0]
     val_hist_adjusted = [v + shift for v in val_hist]
-    plt.plot(val_dates, val_hist_adjusted, color='palevioletred', label='Validation')
+    plt.plot(val_dates, val_hist_adjusted,
+             color='palevioletred', label='Validation')
 
     plt.title("Portfolio Value: Test + Validation")
     plt.xlabel("Date")
@@ -56,11 +58,6 @@ def plot_port_value_test_val(test_hist: list[float], test_dates: pd.Series,
     plt.tight_layout()
     plt.show()
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy import stats
 
 def plot_return_distribution(port_series: pd.Series, title="Portfolio Return Distribution", bins=30) -> None:
     """
@@ -81,7 +78,7 @@ def plot_return_distribution(port_series: pd.Series, title="Portfolio Return Dis
     # Compute monthly returns
     monthly_returns = monthly_values.pct_change().dropna()
 
-    # Plot 
+    # Plot
     plt.figure(figsize=(10, 5))
     sns.histplot(monthly_returns, bins=bins, kde=False, color='palevioletred',
                  stat='density')
@@ -95,6 +92,7 @@ def plot_return_distribution(port_series: pd.Series, title="Portfolio Return Dis
     plt.grid(linestyle=':', alpha=0.5)
     plt.show()
 
+
 def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     """
     Plots rolling volatility of monthly returns.
@@ -103,14 +101,15 @@ def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     - returns: pd.Series of periodic returns (index = datetime)
     - window: rolling window size (default=60 periods)
     """
-    
-    #port_series = port_series.sort_index()
-    #port_series = port_series.resample('M').last()
+
+    # port_series = port_series.sort_index()
+    # port_series = port_series.resample('M').last()
     returns = port_series.pct_change().dropna()
     rolling_vol = returns.rolling(window).std()
 
     plt.figure(figsize=(10, 5))
-    plt.plot(rolling_vol, label=f'{window}-period Rolling Volatility', color='lightcoral')
+    plt.plot(
+        rolling_vol, label=f'{window}-period Rolling Volatility', color='lightcoral')
     plt.title(f'Rolling Volatility ({window}-period)')
     plt.xlabel('Date')
     plt.ylabel('Volatility (Std. Dev.)')
@@ -121,7 +120,7 @@ def plot_rolling_volatility(port_series: pd.Series, window: int = 60) -> None:
     plt.show()
 
 
-def plot_signals(df, buy_signals, sell_signals):
+def plot_signals(df: pd.DataFrame, buy_signals: pd.Series, sell_signals: pd.Series) -> None:
     """
     Overlays buy/sell signals on price chart.
 
@@ -135,8 +134,10 @@ def plot_signals(df, buy_signals, sell_signals):
     plt.plot(df.index, df['Close'], label='Price', color='black', linewidth=1)
 
     # Overlay buy/sell markers
-    plt.scatter(df.index[buy_signals], df['Close'][buy_signals], label='Buy', marker='^', color='darkseagreen', s=80)
-    plt.scatter(df.index[sell_signals], df['Close'][sell_signals], label='Sell', marker='v', color='indianred', s=80)
+    plt.scatter(df.index[buy_signals], df['Close'][buy_signals],
+                label='Buy', marker='^', color='darkseagreen', s=80)
+    plt.scatter(df.index[sell_signals], df['Close'][sell_signals],
+                label='Sell', marker='v', color='indianred', s=80)
 
     plt.title('Buy/Sell Points on Price Chart')
     plt.xlabel('Index')
@@ -146,5 +147,3 @@ def plot_signals(df, buy_signals, sell_signals):
     plt.tight_layout()
     plt.grid(linestyle=':', alpha=0.5)
     plt.show()
-
-

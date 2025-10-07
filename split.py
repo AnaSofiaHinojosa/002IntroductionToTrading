@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def data_split(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Split time series data into training, testing, and validation sets.

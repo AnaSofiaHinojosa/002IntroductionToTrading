@@ -1,6 +1,7 @@
 import ta
 import pandas as pd
 
+
 def add_indicators(
     data: pd.DataFrame,
     rsi_window: int = 14,
@@ -9,10 +10,30 @@ def add_indicators(
     bb_dev: float = 2.0
 ) -> pd.DataFrame:
     """
-    Add technical indicators to the DataFrame with tunable parameters.
+    Computes and appends technical indicators to a financial time series DataFrame.
+
+    This function calculates the Relative Strength Index (RSI), Simple Moving Average (SMA),
+    and Bollinger Bands using the specified window sizes and deviation factor. These indicators
+    are commonly used to assess momentum, trend direction, and volatility in asset prices.
+
+    Parameters:
+        data (pd.DataFrame): Input DataFrame containing a 'Close' price column.
+        rsi_window (int): Lookback period for RSI calculation.
+        sma_window (int): Lookback period for SMA calculation.
+        bb_window (int): Lookback period for Bollinger Bands.
+        bb_dev (float): Number of standard deviations for Bollinger Band width.
+
+    Returns:
+        pd.DataFrame: Modified DataFrame with added columns:
+            - 'RSI': Relative Strength Index
+            - 'SMA': Simple Moving Average
+            - 'BB_Upper': Upper Bollinger Band
+            - 'BB_Lower': Lower Bollinger Band
+        Rows with missing values due to indicator calculation are dropped.
     """
 
-    rsi_indicator = ta.momentum.RSIIndicator(close=data.Close, window=rsi_window)
+    rsi_indicator = ta.momentum.RSIIndicator(
+        close=data.Close, window=rsi_window)
     sma_indicator = ta.trend.SMAIndicator(close=data.Close, window=sma_window)
     bb_indicator = ta.volatility.BollingerBands(
         close=data['Close'], window=bb_window, window_dev=bb_dev
@@ -50,7 +71,7 @@ def get_signals(
         pd.DataFrame: DataFrame with buy/sell signals added.
     """
     data = data.copy()
-    
+
     # RSI signals
     data['buy_signal_rsi'] = data['RSI'] < rsi_buy
     data['sell_signal_rsi'] = data['RSI'] > rsi_sell

@@ -32,15 +32,15 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
     bb_dev = trial.suggest_float("bb_dev", 1.5, 2.5, step=0.05)
 
     # RSI thresholds
-    rsi_buy = trial.suggest_int("rsi_buy", 10, 45)
-    rsi_sell = trial.suggest_int("rsi_sell", 60, 95)    
+    rsi_buy = trial.suggest_int("rsi_buy", 10, 40)
+    rsi_sell = trial.suggest_int("rsi_sell", 60, 90)
 
     # Trade hyperparameters
     sl = trial.suggest_float("SL", 0.02, 0.2)
     tp = trial.suggest_float("TP", 0.02, 0.2)
-    n_shares = trial.suggest_float("n_shares", 0.3, 10.0)      
+    n_shares = trial.suggest_float("n_shares", 0.3, 10.0)
 
-    # Add indicators with params 
+    # Add indicators with params
     data = add_indicators(
         data,
         rsi_window=rsi_window,
@@ -54,7 +54,7 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
         rsi_sell=rsi_sell
     )
 
-    # Cross-validation 
+    # Cross-validation
     n_splits = 7
     calmars = []
     len_data = len(data)
@@ -70,7 +70,7 @@ def optimize(trial: optuna.Trial, train_data: pd.DataFrame) -> float:
         port_series = pd.Series(port_vals)
         returns = port_series.pct_change().dropna()
 
-        calmar = calmar_ratio(returns, periods_per_year=8760) 
+        calmar = calmar_ratio(returns, periods_per_year=8760)
         calmars.append(calmar)
 
     mean_calmar = np.mean(calmars)
